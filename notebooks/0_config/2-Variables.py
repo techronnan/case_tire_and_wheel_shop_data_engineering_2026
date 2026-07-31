@@ -2,10 +2,10 @@
 dbutils.widgets.text("catalog", "pneus_store")
 CATALOG = dbutils.widgets.get("catalog")
 
-LANDING_SCHEMA = "cantustore_landing"
-BRONZE_SCHEMA = "cantustore_bronze"
-SILVER_SCHEMA = "cantustore_silver"
-GOLD_SCHEMA = "cantustore_gold"
+LANDING_SCHEMA = "landing"
+BRONZE_SCHEMA = "bronze"
+SILVER_SCHEMA = "silver"
+GOLD_SCHEMA = "gold"
 
 BRONZE = f"{CATALOG}.{BRONZE_SCHEMA}"
 SILVER = f"{CATALOG}.{SILVER_SCHEMA}"
@@ -16,7 +16,7 @@ GOLD = f"{CATALOG}.{GOLD_SCHEMA}"
 # DBTITLE 1,Paths - landing
 LANDING_PATH = f"/Volumes/{CATALOG}/{LANDING_SCHEMA}/storage_files"
 
-PIPELINE_NAME = "cantustore-carrinho-abandonado"
+PIPELINE_NAME = "carrinho-abandonado"
 
 # COMMAND ----------
 

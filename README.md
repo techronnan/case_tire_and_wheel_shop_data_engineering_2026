@@ -1,10 +1,29 @@
-# Case CantuStore — Engenheiro de Dados
+# Case — Engenheiro de Dados
 
-A CantuStore é uma plataforma de tecnologia e logística para pneus. Este repositório
-é a minha entrega do teste técnico para a vaga de Engenheiro de Dados: a parte de SQL
-(campeonato, comissões e hierarquia de funcionários) e a análise de carrinho
-abandonado, construída num pipeline Bronze/Silver/Gold em Databricks com PySpark,
-deployado via Databricks Asset Bundles.
+Entrega de um teste técnico para vaga de Engenheiro de Dados, dividido em duas partes.
+
+A primeira é SQL: um ranking de campeonato por pontos, uma consulta sobre comissões
+de vendedores (soma de subconjuntos de transferências) e uma consulta recursiva de
+hierarquia de funcionários (achar o chefe indireto mais próximo que ganha pelo menos
+o dobro do salário). Respostas em [sql/](sql/).
+
+A segunda parte é uma análise de carrinho abandonado num e-commerce (dataset SAP
+Hybris/Commerce Cloud, ~33M linhas em 8 tabelas). As principais perguntas que o
+pipeline responde:
+
+- quais produtos mais tiveram carrinhos abandonados
+- quais duplas de produtos mais aparecem juntas nesses carrinhos
+- quais produtos tiveram aumento de abandono mês a mês
+- quais produtos são novos e quantos carrinhos tiveram no primeiro mês
+- quais estados concentram mais abandonos
+
+Além disso, dois relatórios de acompanhamento (produto × mês e por data, com
+quantidade de carrinhos, itens e valor não faturado) e um export `.txt` com os 50
+carrinhos de maior valor.
+
+Todo esse pipeline roda em Databricks: ingestão (Landing → Bronze), tratamento e
+tipagem (Silver) e as tabelas de resposta (Gold), orquestrado como um Job via
+Databricks Asset Bundles.
 
 <!-- imagem: arquitetura do pipeline -->
 

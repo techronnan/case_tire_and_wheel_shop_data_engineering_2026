@@ -18,8 +18,26 @@ variables:
 targets:
   dev:
     default: true
-    mode: development
     workspace:
-      root_path: ~/cicd_pneus_store
+      root_path: /Workspace/Shared/cicd_pneus_store_dev
+    permissions:
+      - level: CAN_MANAGE
+        group_name: users
+    variables:
+      catalog: "pneus_store"
+
+  prod:
+    mode: production
+    workspace:
+      # Caminho fixo e compartilhado, não preso a pasta pessoal de usuário.
+      # Numa empresa real, esse deploy roda via CI/CD autenticado como service
+      # principal (run_as: service_principal_name: ...) — Free Edition não tem
+      # console de admin pra criar um, então aqui ainda roda com conta pessoal.
+      root_path: /Workspace/Shared/cicd_pneus_store
+    # /Workspace/Shared dá acesso a todo mundo do workspace por padrão — declara
+    # a permissão explicitamente em vez de deixar implícito.
+    permissions:
+      - level: CAN_MANAGE
+        group_name: users
     variables:
       catalog: "pneus_store"

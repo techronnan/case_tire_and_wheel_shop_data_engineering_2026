@@ -5,7 +5,9 @@
 # COMMAND ----------
 
 # Ingestao bruta das 8 tabelas do dump Hybris. Preserva schema/nomes de coluna da
-# fonte (so lowercase) -> Delta, upsert por pk_col (idempotente e incremental).
+# fonte (so lowercase) -> Delta, overwrite (pk ainda nao e garantido unico aqui -
+# o dump raw do Hybris tem linhas tecnicas duplicadas por pk; dedup e upsert por
+# chave acontecem na Silver, depois do dropDuplicates).
 for nome_tabela, fonte in FONTES.items():
     path = f"{LANDING_PATH}/{fonte['file']}"
 
@@ -25,4 +27,4 @@ for nome_tabela, fonte in FONTES.items():
         .withColumn("nm_arquivo_origem", lit(fonte["file"]))
     )
 
-    process_data_load(df_bronze, f"{BRONZE}.{nome_tabela}", chave=fonte["pk_col"])
+    process_data_load(df_bronze, f"{BRONZE}.{nome_tabela}")

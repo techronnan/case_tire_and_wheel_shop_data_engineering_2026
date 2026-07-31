@@ -10,7 +10,7 @@ include:
 variables:
   catalog:
     default: "pneus_store"
-    description: "Catalog Unity Catalog alvo — schemas cantustore_bronze/silver/gold ficam dentro dele"
+    description: "Catalog Unity Catalog alvo — schemas landing/bronze/silver/gold ficam dentro dele"
   notification_email:
     default: "ronnan_ok@hotmail.com"
     description: "E-mail para notificação de falha do Job"
@@ -19,7 +19,7 @@ targets:
   dev:
     default: true
     workspace:
-      root_path: /Workspace/Shared/cicd_pneus_store_dev
+      root_path: /Workspace/CICD_PNEUS_STORE/dev/pneus_store
     permissions:
       - level: CAN_MANAGE
         group_name: users
@@ -33,9 +33,7 @@ targets:
       # Numa empresa real, esse deploy roda via CI/CD autenticado como service
       # principal (run_as: service_principal_name: ...) — Free Edition não tem
       # console de admin pra criar um, então aqui ainda roda com conta pessoal.
-      root_path: /Workspace/Shared/cicd_pneus_store
-    # /Workspace/Shared dá acesso a todo mundo do workspace por padrão — declara
-    # a permissão explicitamente em vez de deixar implícito.
+      root_path: /Workspace/CICD_PNEUS_STORE/prod/pneus_store
     permissions:
       - level: CAN_MANAGE
         group_name: users

@@ -9,6 +9,8 @@ resources:
     wf_cantustore_carrinho_abandonado:
       name: "[${bundle.target}] wf_cantustore_carrinho_abandonado"
 
+      max_concurrent_runs: 1
+
       parameters:
         - name: catalog
           default: ${var.catalog}

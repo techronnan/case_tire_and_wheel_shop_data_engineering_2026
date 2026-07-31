@@ -18,7 +18,7 @@ dim_enderecos = spark.table(f"{SILVER}.dim_enderecos")
 
 itens_agregados = fato_itens.groupBy("id_carrinho").agg(
     _sum("qt_produto").alias("qt_total_itens"),
-    count("id_item_carrinho").alias("qt_linhas_item"),
+    count("*").alias("qt_linhas_item"),
 )
 
 top50 = (

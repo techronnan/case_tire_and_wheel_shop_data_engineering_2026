@@ -1,0 +1,25 @@
+# Claude Code — assistente e config local, fora do repo até o processo seletivo terminar
+.claude/
+CLAUDE.md
+
+# Dump bruto do case (zips/parquet grandes, acima do limite do GitHub) — hospedado
+# no Google Drive, ver notebooks/0_config/2-Variables.py (DRIVE_FOLDER_ID).
+# Os 3 arquivos pequenos têm cópia versionada em sources/.
+artefatos_do_case/
+
+# Databricks CLI / Asset Bundles — estado local
+.databricks/
+
+# Documentação detalhada (spec/decisões/operação) — mantida local por enquanto,
+# só o README fica público
+docs/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/

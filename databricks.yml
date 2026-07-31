@@ -1,0 +1,25 @@
+# Declarative Automation Bundle — cicd_pneus_store
+# Documentação: https://docs.databricks.com/dev-tools/bundles/index.html
+
+bundle:
+  name: cicd_pneus_store
+
+include:
+  - resources/**/*.yml
+
+variables:
+  catalog:
+    default: "pneus_store"
+    description: "Catalog Unity Catalog alvo — schemas cantustore_bronze/silver/gold ficam dentro dele"
+  notification_email:
+    default: "ronnan_ok@hotmail.com"
+    description: "E-mail para notificação de falha do Job"
+
+targets:
+  dev:
+    default: true
+    mode: development
+    workspace:
+      root_path: /Workspace/cicd_pneus_store
+    variables:
+      catalog: "pneus_store"

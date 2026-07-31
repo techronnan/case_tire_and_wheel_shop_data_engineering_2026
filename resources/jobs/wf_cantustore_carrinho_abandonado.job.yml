@@ -1,0 +1,71 @@
+# ---------------------------------------------------------------------------
+# Job: wf_cantustore_carrinho_abandonado
+# DAG: Setup -> Landing -> Bronze -> Silver (dimensoes + fatos, paralelas)
+#      -> Gold (perguntas, relatorios, export, paralelas)
+# Free Edition: so compute serverless, nenhuma task declara cluster.
+# ---------------------------------------------------------------------------
+resources:
+  jobs:
+    wf_cantustore_carrinho_abandonado:
+      name: "[${bundle.target}] wf_cantustore_carrinho_abandonado"
+
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+
+      email_notifications:
+        on_failure:
+          - ${var.notification_email}
+
+      tasks:
+
+        - task_key: setup
+          notebook_task:
+            notebook_path: ../../notebooks/0_config/4-SetupCatalog.py
+            base_parameters: {catalog: "${var.catalog}"}
+
+        - task_key: landing_download
+          depends_on: [{task_key: setup}]
+          notebook_task:
+            notebook_path: ../../notebooks/1_landing/00-LandingDownloadDrive.py
+            base_parameters: {catalog: "${var.catalog}", force_download: "false"}
+
+        - task_key: bronze_ingestao
+          depends_on: [{task_key: landing_download}]
+          notebook_task:
+            notebook_path: ../../notebooks/2_bronze/01-BronzeIngestao.py
+            base_parameters: {catalog: "${var.catalog}"}
+
+        - task_key: silver_dimensoes
+          depends_on: [{task_key: bronze_ingestao}]
+          notebook_task:
+            notebook_path: ../../notebooks/3_silver/01-SilverDimensoes.py
+            base_parameters: {catalog: "${var.catalog}"}
+
+        - task_key: silver_fatos
+          depends_on: [{task_key: bronze_ingestao}]
+          notebook_task:
+            notebook_path: ../../notebooks/3_silver/02-SilverFatos.py
+            base_parameters: {catalog: "${var.catalog}"}
+
+        - task_key: gold_perguntas_negocio
+          depends_on:
+            - task_key: silver_dimensoes
+            - task_key: silver_fatos
+          notebook_task:
+            notebook_path: ../../notebooks/4_gold/01-GoldPerguntasNegocio.py
+            base_parameters: {catalog: "${var.catalog}"}
+
+        - task_key: gold_relatorios
+          depends_on: [{task_key: silver_fatos}]
+          notebook_task:
+            notebook_path: ../../notebooks/4_gold/02-GoldRelatorios.py
+            base_parameters: {catalog: "${var.catalog}"}
+
+        - task_key: gold_export_top50
+          depends_on:
+            - task_key: silver_dimensoes
+            - task_key: silver_fatos
+          notebook_task:
+            notebook_path: ../../notebooks/4_gold/03-GoldExportTop50.py
+            base_parameters: {catalog: "${var.catalog}"}

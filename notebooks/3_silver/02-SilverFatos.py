@@ -8,6 +8,16 @@
 # Sem tabela de pedidos no dump -> toda linha de tb_carts e tratada como carrinho
 # abandonado. Colunas de FK (p_user, p_paymentaddress, ...) chegam como double no
 # parquet Hybris -> CAST explicito pra bigint.
+#
+# id_endereco (p_paymentaddress) so e preenchido em ~0,00004% dos carrinhos - quase
+# ninguem chega na etapa de endereco de pagamento antes de abandonar. Ja
+# p_zipcodecalculatedelivery (CEP usado pra simular frete, preenchido bem mais cedo
+# no funil) chega como string derivada de double ("60440145.0", "0000000 (nan)"
+# quando vazio) -> limpar sufixo ".0" e validar como CEP de 7-8 digitos numericos
+# nao-zerados, com LPAD pro digito perdido (zero a esquerda some no cast double).
+cep_sem_sufixo = regexp_replace(col("p_zipcodecalculatedelivery"), r"\.0$", "")
+cep_valido = cep_sem_sufixo.rlike("^[0-9]{7,8}$") & ~cep_sem_sufixo.rlike("^0+$")
+
 fato_carrinhos = (
     spark.table(f"{BRONZE}.tb_carts")
     .select(
@@ -19,6 +29,7 @@ fato_carrinhos = (
         col("p_paymentinfo").cast("bigint").alias("id_info_pagamento"),
         col("p_paymentmode").cast("bigint").alias("id_forma_pagamento"),
         col("p_site").cast("bigint").alias("id_site"),
+        when(cep_valido, lpad(cep_sem_sufixo, 8, "0")).alias("cd_cep_calculado"),
     )
     .withColumn("dt_criacao", to_date("dh_criacao"))
     .dropDuplicates(["id_carrinho"])

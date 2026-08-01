@@ -1,4 +1,4 @@
-name: Deploy and run (dev)
+name: Deploy (dev)
 
 on:
   pull_request:
@@ -15,21 +15,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: databricks/setup-cli@main
+      # So deploya a definicao do Job (fica pausado, ver resources/jobs/*.job.yml).
+      # Disparar uma execucao e decisao manual (databricks bundle run -t dev) -
+      # com varios jobs no workspace, rodar tudo a cada PR nao escala.
       - name: Validate and deploy bundle (dev)
         if: env.DATABRICKS_HOST != '' && env.DATABRICKS_TOKEN != ''
         run: |
           databricks bundle validate -t dev
           databricks bundle deploy -t dev
-
-  run:
-    needs: deploy
-    runs-on: ubuntu-latest
-    env:
-      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_DEV }}
-      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN_DEV }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: databricks/setup-cli@main
-      - name: Run pipeline (dev)
+      # Guarda-corpo: se alguem destravar o schedule manualmente pela UI, este
+      # step repausa antes que vire uma execucao/custo surpresa.
+      - name: Enforce dev job stays paused
         if: env.DATABRICKS_HOST != '' && env.DATABRICKS_TOKEN != ''
-        run: databricks bundle run wf_pneustore_carrinho_abandonado -t dev
+        run: |
+          pip install --quiet databricks-sdk
+          python scripts/enforce_dev_paused.py

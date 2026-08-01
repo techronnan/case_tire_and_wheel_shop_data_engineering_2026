@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------
 # Job: wf_pneustore_carrinho_abandonado
 # DAG: Setup -> Landing -> Bronze -> Silver (dimensoes + fatos, paralelas)
-#      -> Gold (perguntas, relatorios, export, paralelas)
+#      -> QualidadeDados -> Gold (perguntas, relatorios, export, paralelas)
 # Free Edition: so compute serverless, nenhuma task declara cluster.
 # ---------------------------------------------------------------------------
 resources:
@@ -10,6 +10,15 @@ resources:
       name: "[${bundle.target}] wf_pneustore_carrinho_abandonado"
 
       max_concurrent_runs: 1
+
+      # Pausado de proposito: dump e um snapshot estatico, nao ha dado novo
+      # chegando todo dia. Schedule existe pra representar o padrao real de
+      # producao, mas quem decide quando rodar e a pessoa (bundle run manual
+      # ou despausando aqui) - nao o deploy do CI/CD.
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"
+        timezone_id: "America/Sao_Paulo"
+        pause_status: PAUSED
 
       tags:
         project: pneus_store
@@ -65,24 +74,28 @@ resources:
             notebook_path: ../../notebooks/3_silver/02-SilverFatos.py
             base_parameters: {catalog: "${var.catalog}"}
 
-        - task_key: gold_perguntas_negocio
+        - task_key: qualidade_dados
           depends_on:
             - task_key: silver_dimensoes
             - task_key: silver_fatos
+          notebook_task:
+            notebook_path: ../../notebooks/3_silver/03-QualidadeDados.py
+            base_parameters: {catalog: "${var.catalog}"}
+
+        - task_key: gold_perguntas_negocio
+          depends_on: [{task_key: qualidade_dados}]
           notebook_task:
             notebook_path: ../../notebooks/4_gold/01-GoldPerguntasNegocio.py
             base_parameters: {catalog: "${var.catalog}"}
 
         - task_key: gold_relatorios
-          depends_on: [{task_key: silver_fatos}]
+          depends_on: [{task_key: qualidade_dados}]
           notebook_task:
             notebook_path: ../../notebooks/4_gold/02-GoldRelatorios.py
             base_parameters: {catalog: "${var.catalog}"}
 
         - task_key: gold_export_top50
-          depends_on:
-            - task_key: silver_dimensoes
-            - task_key: silver_fatos
+          depends_on: [{task_key: qualidade_dados}]
           notebook_task:
             notebook_path: ../../notebooks/4_gold/03-GoldExportTop50.py
             base_parameters: {catalog: "${var.catalog}"}

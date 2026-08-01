@@ -19,4 +19,20 @@ def process_data_load(df: DataFrame, nome_tabela: str, chave: str = None) -> int
     return linhas
 
 
-print("[Functions] carregadas | process_data_load")
+def check_quality(nome_tabela: str, chave: str) -> list:
+    """Checa linhas>0, chave sem nulo e sem duplicata. Retorna lista de falhas (vazia = ok)."""
+    df = spark.table(nome_tabela)
+    total = df.count()
+    falhas = []
+    if total == 0:
+        return [f"{nome_tabela}: 0 linhas"]
+    nulos = df.filter(col(chave).isNull()).count()
+    if nulos > 0:
+        falhas.append(f"{nome_tabela}: {nulos} linha(s) com {chave} nulo")
+    distintos = df.select(chave).distinct().count()
+    if distintos != total:
+        falhas.append(f"{nome_tabela}: {chave} duplicado ({total} linhas, {distintos} distintos)")
+    return falhas
+
+
+print("[Functions] carregadas | process_data_load, check_quality")

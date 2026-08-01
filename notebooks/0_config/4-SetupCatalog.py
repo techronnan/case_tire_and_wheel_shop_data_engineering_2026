@@ -3,7 +3,7 @@
 # Setup unico de infraestrutura Unity Catalog. Roda como primeira task do job,
 # antes do landing — nao faz parte da cadeia 0-Init.
 
-dbutils.widgets.text("catalog", "pneus_store")
+dbutils.widgets.text("catalog", "pneustore_dev")
 CATALOG = dbutils.widgets.get("catalog")
 
 print(f"[Setup] Catalog alvo: {CATALOG}")

@@ -80,9 +80,40 @@ process_data_load(rpt_produtos_novos_ultimo_mes, f"{GOLD}.rpt_produtos_novos_ult
 # COMMAND ----------
 
 # DBTITLE 1,Q5 - estados com mais abandonos
-rpt_estados_mais_abandonos = (
+# id_endereco (endereco de pagamento) so cobre ~6 carrinhos em 16M - quase ninguem
+# chega nessa etapa do checkout antes de abandonar. cd_cep_calculado (CEP usado pra
+# simular frete, preenchido bem mais cedo no funil) cobre ~11,5% dos carrinhos ->
+# resolvido pra UF via faixa oficial de CEP dos Correios. sg_uf do endereco de
+# pagamento tem prioridade quando existe (mais preciso que faixa de CEP), o resto
+# cai pro CEP calculado.
+FAIXAS_CEP_UF = [
+    (1000000, 19999999, "SP"), (20000000, 28999999, "RJ"), (29000000, 29999999, "ES"),
+    (30000000, 39999999, "MG"), (40000000, 48999999, "BA"), (49000000, 49999999, "SE"),
+    (50000000, 56999999, "PE"), (57000000, 57999999, "AL"), (58000000, 58999999, "PB"),
+    (59000000, 59999999, "RN"), (60000000, 63999999, "CE"), (64000000, 64999999, "PI"),
+    (65000000, 65999999, "MA"), (66000000, 68899999, "PA"), (68900000, 68999999, "AP"),
+    (69000000, 69299999, "AM"), (69300000, 69399999, "RR"), (69400000, 69899999, "AM"),
+    (69900000, 69999999, "AC"), (70000000, 72799999, "DF"), (72800000, 72999999, "GO"),
+    (73000000, 73699999, "DF"), (73700000, 76799999, "GO"), (76800000, 76999999, "RO"),
+    (77000000, 77999999, "TO"), (78000000, 78899999, "MT"), (78900000, 78999999, "RO"),
+    (79000000, 79999999, "MS"), (80000000, 87999999, "PR"), (88000000, 89999999, "SC"),
+    (90000000, 99999999, "RS"),
+]
+faixas_cep_uf = spark.createDataFrame(FAIXAS_CEP_UF, ["cep_ini", "cep_fim", "sg_uf_cep"])
+
+carrinhos_com_uf = (
     fato_carrinhos.join(dim_enderecos, on="id_endereco", how="left")
-    .groupBy("sg_uf")
+    .withColumn("cep_num", col("cd_cep_calculado").cast("int"))
+    .join(
+        broadcast(faixas_cep_uf),
+        col("cep_num").between(col("cep_ini"), col("cep_fim")),
+        "left",
+    )
+    .withColumn("sg_uf_resolvido", coalesce(col("sg_uf"), col("sg_uf_cep")))
+)
+
+rpt_estados_mais_abandonos = (
+    carrinhos_com_uf.groupBy(col("sg_uf_resolvido").alias("sg_uf"))
     .agg(countDistinct("id_carrinho").alias("qt_carrinhos_abandonados"))
     .orderBy(col("qt_carrinhos_abandonados").desc())
 )

@@ -15,19 +15,19 @@ jobs:
       - uses: databricks/setup-cli@main
       - name: Validate bundle (dev)
         env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_DEV }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN_DEV }}
         run: databricks bundle validate -t dev
 
   deploy-prod:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     # secrets nao e acessivel em `if:` diretamente - passa pra env aqui, depois
-    # cada step abaixo checa `env.*` no seu if. Ate DATABRICKS_HOST/TOKEN serem
-    # cadastrados no repo, esses steps aparecem como "skipped", nao "failed".
+    # cada step abaixo checa `env.*` no seu if. Ate os secrets serem cadastrados
+    # no repo, esses steps aparecem como "skipped", nao "failed".
     env:
-      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_PROD }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN_PROD }}
     steps:
       - uses: actions/checkout@v4
       - uses: databricks/setup-cli@main

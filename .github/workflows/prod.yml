@@ -7,7 +7,20 @@ on:
 concurrency: prod-deployment
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_PROD }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN_PROD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      - name: Validate bundle (prod)
+        if: env.DATABRICKS_HOST != '' && env.DATABRICKS_TOKEN != ''
+        run: databricks bundle validate -t prod
+
   deploy:
+    needs: validate
     runs-on: ubuntu-latest
     env:
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_PROD }}
@@ -18,8 +31,6 @@ jobs:
       # So deploya a definicao do Job (fica pausado, ver resources/jobs/*.job.yml).
       # Execucao em prod e via schedule (despausado quando fizer sentido) ou
       # disparo manual - nunca automatico a cada merge.
-      - name: Validate and deploy bundle (prod)
+      - name: Deploy bundle (prod)
         if: env.DATABRICKS_HOST != '' && env.DATABRICKS_TOKEN != ''
-        run: |
-          databricks bundle validate -t prod
-          databricks bundle deploy -t prod
+        run: databricks bundle deploy -t prod

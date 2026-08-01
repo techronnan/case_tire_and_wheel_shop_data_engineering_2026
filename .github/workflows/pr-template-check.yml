@@ -1,0 +1,29 @@
+name: PR template check
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, edited, synchronize, reopened]
+
+jobs:
+  check-template:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify PR description was filled
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = (context.payload.pull_request.body || '').trim();
+            const template = fs.readFileSync('.github/PULL_REQUEST_TEMPLATE.md', 'utf8').trim();
+
+            if (!body) {
+              core.setFailed('Descricao do PR esta vazia - preencha o template (.github/PULL_REQUEST_TEMPLATE.md).');
+              return;
+            }
+            if (body === template) {
+              core.setFailed('Descricao do PR ainda e o template sem preencher.');
+              return;
+            }
+            console.log('OK - descricao do PR foi preenchida');

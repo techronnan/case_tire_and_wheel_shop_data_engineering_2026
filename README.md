@@ -6,7 +6,12 @@ A primeira é SQL: um ranking de campeonato por pontos, uma consulta sobre comis
 de vendedores (soma de subconjuntos de transferências) e uma consulta recursiva de
 hierarquia de funcionários (achar o chefe indireto mais próximo que ganha pelo menos
 o dobro do salário). Roda como notebook + Job (`wf_pneustore_sql_parte1`), com o
-dado de exemplo do próprio enunciado — ver [notebooks/parte1_sql/](notebooks/parte1_sql/).
+dado de exemplo do próprio enunciado — ver [notebooks/parte1_sql/](notebooks/parte1_sql/):
+
+- [`00-Setup.py`](notebooks/parte1_sql/00-Setup.py) — cria as 4 tabelas de exemplo do enunciado (`times`, `jogos`, `comissoes`, `colaboradores`)
+- [`01-Campeonato.py`](notebooks/parte1_sql/01-Campeonato.py) — ranking por pontos → `rpt_campeonato`
+- [`02-Comissoes.py`](notebooks/parte1_sql/02-Comissoes.py) — vendedores com até 3 comissões somando 1024+ → `rpt_comissoes_vendedores`
+- [`03-OrganizacaoEmpresarial.py`](notebooks/parte1_sql/03-OrganizacaoEmpresarial.py) — chefe indireto mais próximo que ganha o dobro → `rpt_organizacao_chefes`
 
 A segunda parte é uma análise de carrinho abandonado num e-commerce (dataset SAP
 Hybris/Commerce Cloud, ~33M linhas em 8 tabelas: carrinhos, itens, usuários,

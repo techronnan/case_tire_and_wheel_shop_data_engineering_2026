@@ -7,7 +7,20 @@ on:
 concurrency: dev-deployment
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_DEV }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN_DEV }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      - name: Validate bundle (dev)
+        if: env.DATABRICKS_HOST != '' && env.DATABRICKS_TOKEN != ''
+        run: databricks bundle validate -t dev
+
   deploy:
+    needs: validate
     runs-on: ubuntu-latest
     env:
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_DEV }}
@@ -18,11 +31,9 @@ jobs:
       # So deploya a definicao do Job (fica pausado, ver resources/jobs/*.job.yml).
       # Disparar uma execucao e decisao manual (databricks bundle run -t dev) -
       # com varios jobs no workspace, rodar tudo a cada PR nao escala.
-      - name: Validate and deploy bundle (dev)
+      - name: Deploy bundle (dev)
         if: env.DATABRICKS_HOST != '' && env.DATABRICKS_TOKEN != ''
-        run: |
-          databricks bundle validate -t dev
-          databricks bundle deploy -t dev
+        run: databricks bundle deploy -t dev
       # Guarda-corpo: se alguem destravar o schedule manualmente pela UI, este
       # step repausa antes que vire uma execucao/custo surpresa.
       - name: Enforce dev job stays paused

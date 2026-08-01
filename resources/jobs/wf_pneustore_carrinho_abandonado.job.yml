@@ -1,13 +1,13 @@
 # ---------------------------------------------------------------------------
-# Job: wf_cantustore_carrinho_abandonado
+# Job: wf_pneustore_carrinho_abandonado
 # DAG: Setup -> Landing -> Bronze -> Silver (dimensoes + fatos, paralelas)
 #      -> Gold (perguntas, relatorios, export, paralelas)
 # Free Edition: so compute serverless, nenhuma task declara cluster.
 # ---------------------------------------------------------------------------
 resources:
   jobs:
-    wf_cantustore_carrinho_abandonado:
-      name: "[${bundle.target}] wf_cantustore_carrinho_abandonado"
+    wf_pneustore_carrinho_abandonado:
+      name: "[${bundle.target}] wf_pneustore_carrinho_abandonado"
 
       max_concurrent_runs: 1
 

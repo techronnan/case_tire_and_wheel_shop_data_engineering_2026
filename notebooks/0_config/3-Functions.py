@@ -4,8 +4,10 @@ def process_data_load(df: DataFrame, nome_tabela: str, chave: str = None) -> int
     incremental em reexecucoes. Sem `chave` (tabelas Gold agregadas), overwrite."""
     if chave and spark.catalog.tableExists(nome_tabela):
         df.createOrReplaceTempView("_merge_source")
+        # SCHEMA EVOLUTION explicito - sem isso, coluna nova no source e' descartada
+        # em silencio pelo UPDATE SET */INSERT * (sem erro, sem aviso).
         spark.sql(f"""
-            MERGE INTO {nome_tabela} AS target
+            MERGE WITH SCHEMA EVOLUTION INTO {nome_tabela} AS target
             USING _merge_source AS source
             ON target.{chave} = source.{chave}
             WHEN MATCHED THEN UPDATE SET *

@@ -27,6 +27,12 @@ Landing, Bronze, Silver e Gold rodam como notebooks Databricks orquestrados por 
 Job (Databricks Asset Bundles), com upsert por chave em Bronze/Silver — não é um
 overwrite cego, uma nova execução atualiza só o que mudou.
 
+- [`notebooks/1_landing/`](notebooks/1_landing/) — baixa as 8 tabelas do dump do Google Drive pro Volume
+- [`notebooks/2_bronze/`](notebooks/2_bronze/) — ingestão bruta, schema preservado como veio da fonte
+- [`notebooks/3_silver/`](notebooks/3_silver/) — tipagem, conformidade e enriquecimento (ex.: resolução
+  de UF do carrinho via faixa de CEP, já que o endereço de pagamento raramente é preenchido)
+- [`notebooks/4_gold/`](notebooks/4_gold/) — as 5 perguntas de negócio, os 2 relatórios de acompanhamento e o export top50
+
 <!-- imagem: DAG do Job rodando no Databricks -->
 
 ## Casos de uso (Parte 2)

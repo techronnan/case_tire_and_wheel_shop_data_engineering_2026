@@ -55,6 +55,7 @@ pedido na prova — sai de
 
 ## Conteúdo
 
+- `case/` — enunciado original (CASO.md) e descrição da vaga (VAGA.md)
 - `sql/` — respostas da Parte 1
 - `notebooks/0_config/` — catalog, paths, mapeamento das fontes, funções compartilhadas
 - `notebooks/1_landing/` — download do Google Drive

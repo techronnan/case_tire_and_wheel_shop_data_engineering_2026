@@ -13,6 +13,15 @@ dado de exemplo do próprio enunciado — ver [notebooks/parte1_sql/](notebooks/
 - [`02-Comissoes.py`](notebooks/parte1_sql/02-Comissoes.py) — vendedores com até 3 comissões somando 1024+ → `rpt_comissoes_vendedores`
 - [`03-OrganizacaoEmpresarial.py`](notebooks/parte1_sql/03-OrganizacaoEmpresarial.py) — chefe indireto mais próximo que ganha o dobro → `rpt_organizacao_chefes`
 
+```mermaid
+flowchart TD
+    S[00-Setup<br/>cria times, jogos, comissoes, colaboradores] --> C1[01-Campeonato<br/>→ rpt_campeonato]
+    S --> C2[02-Comissoes<br/>→ rpt_comissoes_vendedores]
+    S --> C3[03-OrganizacaoEmpresarial<br/>→ rpt_organizacao_chefes]
+```
+
+Job: `wf_pneustore_sql_parte1`.
+
 A segunda parte é uma análise de carrinho abandonado num e-commerce (dataset SAP
 Hybris/Commerce Cloud, ~33M linhas em 8 tabelas: carrinhos, itens, usuários,
 endereços, formas de pagamento etc.). O dado bruto é grande demais pra caber no
@@ -22,15 +31,22 @@ git, então fica hospedado numa pasta do Google Drive e é baixado em runtime.
 
 ```mermaid
 flowchart TD
-    A[Google Drive<br/>8 tabelas do dump] --> B[1_landing<br/>baixa pro Volume]
-    B --> C[2_bronze<br/>ingestão bruta]
-    C --> D[3_silver<br/>tipagem e conformidade]
-    D --> E[4_gold<br/>perguntas + relatórios + export]
+    Setup[0_config<br/>4-SetupCatalog] --> Landing[1_landing<br/>00-LandingDownloadDrive]
+    Landing --> Bronze[2_bronze<br/>01-BronzeIngestao]
+    Bronze --> SilverDim[3_silver<br/>01-SilverDimensoes]
+    Bronze --> SilverFat[3_silver<br/>02-SilverFatos]
+    SilverDim --> Qualidade[3_silver<br/>03-QualidadeDados]
+    SilverFat --> Qualidade
+    Qualidade --> GoldPerguntas[4_gold<br/>01-GoldPerguntasNegocio]
+    Qualidade --> GoldRelatorios[4_gold<br/>02-GoldRelatorios]
+    Qualidade --> GoldExport[4_gold<br/>03-GoldExportTop50]
 ```
 
-Landing, Bronze, Silver e Gold rodam como notebooks Databricks orquestrados por um
-Job (Databricks Asset Bundles), com upsert por chave em Bronze/Silver — não é um
-overwrite cego, uma nova execução atualiza só o que mudou.
+Job: `wf_pneustore_carrinho_abandonado`. Landing, Bronze, Silver e Gold rodam como
+notebooks Databricks orquestrados por esse Job (Databricks Asset Bundles), com
+upsert por chave em Bronze/Silver — não é um overwrite cego, uma nova execução
+atualiza só o que mudou. `QualidadeDados` bloqueia a Gold se alguma tabela Silver
+falhar nos checks (linha zero, chave nula, chave duplicada).
 
 - [`notebooks/1_landing/`](notebooks/1_landing/) — baixa as 8 tabelas do dump do Google Drive pro Volume
 - [`notebooks/2_bronze/`](notebooks/2_bronze/) — ingestão bruta, schema preservado como veio da fonte

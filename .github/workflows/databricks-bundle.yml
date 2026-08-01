@@ -22,16 +22,18 @@ jobs:
   deploy-prod:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    # secrets nao e acessivel em `if:` diretamente - passa pra env aqui, depois
+    # cada step abaixo checa `env.*` no seu if. Ate DATABRICKS_HOST/TOKEN serem
+    # cadastrados no repo, esses steps aparecem como "skipped", nao "failed".
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
     steps:
       - uses: actions/checkout@v4
       - uses: databricks/setup-cli@main
       - name: Deploy bundle (prod)
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        if: env.DATABRICKS_HOST != '' && env.DATABRICKS_TOKEN != ''
         run: databricks bundle deploy -t prod
       - name: Run pipeline (prod)
-        env:
-          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
-          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        if: env.DATABRICKS_HOST != '' && env.DATABRICKS_TOKEN != ''
         run: databricks bundle run wf_cantustore_carrinho_abandonado -t prod

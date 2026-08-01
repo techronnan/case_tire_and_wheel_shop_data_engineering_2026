@@ -1,0 +1,51 @@
+# ---------------------------------------------------------------------------
+# Job: wf_pneustore_sql_parte1
+# DAG: Setup -> Campeonato / Comissoes / OrganizacaoEmpresarial (paralelas)
+# Parte 1 do case (SQL): dado de exemplo estatico do proprio enunciado, sem
+# fonte externa - por isso schema/tabelas proprios (parte1_sql), sem Landing.
+# Free Edition: so compute serverless, nenhuma task declara cluster.
+# ---------------------------------------------------------------------------
+resources:
+  jobs:
+    wf_pneustore_sql_parte1:
+      name: "[${bundle.target}] wf_pneustore_sql_parte1"
+
+      max_concurrent_runs: 1
+
+      tags:
+        project: pneus_store
+        area: data-engineering
+        environment: ${bundle.target}
+
+      parameters:
+        - name: catalog
+          default: ${var.catalog}
+
+      email_notifications:
+        on_failure:
+          - ${var.notification_email}
+
+      tasks:
+
+        - task_key: setup
+          notebook_task:
+            notebook_path: ../../notebooks/parte1_sql/00-Setup.py
+            base_parameters: {catalog: "${var.catalog}"}
+
+        - task_key: campeonato
+          depends_on: [{task_key: setup}]
+          notebook_task:
+            notebook_path: ../../notebooks/parte1_sql/01-Campeonato.py
+            base_parameters: {catalog: "${var.catalog}"}
+
+        - task_key: comissoes
+          depends_on: [{task_key: setup}]
+          notebook_task:
+            notebook_path: ../../notebooks/parte1_sql/02-Comissoes.py
+            base_parameters: {catalog: "${var.catalog}"}
+
+        - task_key: organizacao_empresarial
+          depends_on: [{task_key: setup}]
+          notebook_task:
+            notebook_path: ../../notebooks/parte1_sql/03-OrganizacaoEmpresarial.py
+            base_parameters: {catalog: "${var.catalog}"}

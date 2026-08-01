@@ -5,7 +5,8 @@ Entrega de um teste técnico para vaga de Engenheiro de Dados, dividido em duas 
 A primeira é SQL: um ranking de campeonato por pontos, uma consulta sobre comissões
 de vendedores (soma de subconjuntos de transferências) e uma consulta recursiva de
 hierarquia de funcionários (achar o chefe indireto mais próximo que ganha pelo menos
-o dobro do salário). Respostas em [sql/](sql/).
+o dobro do salário). Roda como notebook + Job (`wf_pneustore_sql_parte1`), com o
+dado de exemplo do próprio enunciado — ver [notebooks/parte1_sql/](notebooks/parte1_sql/).
 
 A segunda parte é uma análise de carrinho abandonado num e-commerce (dataset SAP
 Hybris/Commerce Cloud, ~33M linhas em 8 tabelas: carrinhos, itens, usuários,
@@ -56,7 +57,7 @@ pedido na prova — sai de
 ## Conteúdo
 
 - `case/` — enunciado original (CASO.md) e descrição da vaga (VAGA.md)
-- `sql/` — respostas da Parte 1
+- `notebooks/parte1_sql/` — setup (tabelas de exemplo) + as 3 queries da Parte 1
 - `notebooks/0_config/` — catalog, paths, mapeamento das fontes, funções compartilhadas
 - `notebooks/1_landing/` — download do Google Drive
 - `notebooks/2_bronze/` — ingestão bruta das 8 tabelas

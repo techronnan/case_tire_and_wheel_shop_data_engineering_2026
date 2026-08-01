@@ -1,5 +1,5 @@
 # Databricks notebook source
-dbutils.widgets.text("catalog", "pneus_store")
+dbutils.widgets.text("catalog", "pneustore_dev")
 CATALOG = dbutils.widgets.get("catalog")
 
 LANDING_SCHEMA = "landing"

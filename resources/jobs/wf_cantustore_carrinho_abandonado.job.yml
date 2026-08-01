@@ -11,12 +11,27 @@ resources:
 
       max_concurrent_runs: 1
 
+      tags:
+        project: pneus_store
+        area: data-engineering
+        environment: ${bundle.target}
+
+      health:
+        rules:
+          - metric: RUN_DURATION_SECONDS
+            op: GREATER_THAN
+            value: 1800 # 30min - pipeline normal roda em poucos minutos
+
       parameters:
         - name: catalog
           default: ${var.catalog}
 
       email_notifications:
+        on_success:
+          - ${var.notification_email}
         on_failure:
+          - ${var.notification_email}
+        on_duration_warning_threshold_exceeded:
           - ${var.notification_email}
 
       tasks:

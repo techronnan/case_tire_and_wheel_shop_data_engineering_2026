@@ -9,7 +9,7 @@ include:
 
 variables:
   catalog:
-    default: "pneus_store"
+    default: "pneustore_dev"
     description: "Catalog Unity Catalog alvo — schemas landing/bronze/silver/gold ficam dentro dele"
   notification_email:
     default: "ronnan_ok@hotmail.com"
@@ -24,7 +24,7 @@ targets:
       - level: CAN_MANAGE
         group_name: users
     variables:
-      catalog: "pneus_store"
+      catalog: "pneustore_dev"
 
   prod:
     mode: production
@@ -38,4 +38,4 @@ targets:
       - level: CAN_MANAGE
         group_name: users
     variables:
-      catalog: "pneus_store"
+      catalog: "pneustore_prd"

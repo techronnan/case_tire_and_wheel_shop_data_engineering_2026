@@ -1,0 +1,35 @@
+name: Deploy and run (dev)
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency: dev-deployment
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_DEV }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN_DEV }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      - name: Validate and deploy bundle (dev)
+        if: env.DATABRICKS_HOST != '' && env.DATABRICKS_TOKEN != ''
+        run: |
+          databricks bundle validate -t dev
+          databricks bundle deploy -t dev
+
+  run:
+    needs: deploy
+    runs-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_DEV }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN_DEV }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      - name: Run pipeline (dev)
+        if: env.DATABRICKS_HOST != '' && env.DATABRICKS_TOKEN != ''
+        run: databricks bundle run wf_pneustore_carrinho_abandonado -t dev

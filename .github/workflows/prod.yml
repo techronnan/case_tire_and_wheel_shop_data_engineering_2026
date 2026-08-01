@@ -1,0 +1,35 @@
+name: Deploy and run (prod)
+
+on:
+  push:
+    branches: [main]
+
+concurrency: prod-deployment
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_PROD }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN_PROD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      - name: Validate and deploy bundle (prod)
+        if: env.DATABRICKS_HOST != '' && env.DATABRICKS_TOKEN != ''
+        run: |
+          databricks bundle validate -t prod
+          databricks bundle deploy -t prod
+
+  run:
+    needs: deploy
+    runs-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST_PROD }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN_PROD }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      - name: Run pipeline (prod)
+        if: env.DATABRICKS_HOST != '' && env.DATABRICKS_TOKEN != ''
+        run: databricks bundle run wf_pneustore_carrinho_abandonado -t prod

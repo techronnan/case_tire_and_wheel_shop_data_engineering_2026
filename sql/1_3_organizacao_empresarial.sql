@@ -1,26 +1,8 @@
--- Setup pra testar (opcional) — tabela + dado de exemplo do enunciado.
-CREATE TABLE colaboradores (
-    id INTEGER NOT NULL
-    , nome VARCHAR NOT NULL
-    , salario INTEGER NOT NULL
-    , lider_id INTEGER
-    , UNIQUE(id)
-);
-INSERT INTO colaboradores VALUES
-    (40, 'Helen', 1500, 50),
-    (50, 'Bruno', 3000, 10),
-    (10, 'Leonardo', 4500, 20),
-    (20, 'Marcos', 10000, NULL),
-    (70, 'Mateus', 1500, 10),
-    (60, 'Cinthia', 2000, 70),
-    (30, 'Wilian', 1501, 50);
-
 -- Parte 1.3 — Organização Empresarial
 -- O chefe indireto "mais baixo na hierarquia" que ganha o dobro = o primeiro chefe
 -- subindo a cadeia (chefe direto, depois chefe do chefe...) que bate a condição de
 -- salário — porque quem está mais perto do funcionário sempre tem mais chefes
 -- indiretos acima de si do que quem está mais longe.
--- Resultado esperado: 10->20, 20->NULL, 30->10, 40->50, 50->20, 60->10, 70->10
 
 WITH RECURSIVE hierarquia AS (
     SELECT

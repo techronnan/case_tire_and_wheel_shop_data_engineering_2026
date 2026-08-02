@@ -14,8 +14,8 @@ dado de exemplo do próprio enunciado — ver [notebooks/parte1_sql/](notebooks/
 - [`03-OrganizacaoEmpresarial.py`](notebooks/parte1_sql/03-OrganizacaoEmpresarial.py) — chefe indireto mais próximo que ganha o dobro → `rpt_organizacao_chefes`
 
 ```mermaid
-flowchart TD
-    S[00-Setup<br/>cria times, jogos, comissoes, colaboradores] --> C1[01-Campeonato<br/>→ rpt_campeonato]
+flowchart LR
+    S[00-Setup<br/>cria times, jogos,<br/>comissoes, colaboradores] --> C1[01-Campeonato<br/>→ rpt_campeonato]
     S --> C2[02-Comissoes<br/>→ rpt_comissoes_vendedores]
     S --> C3[03-OrganizacaoEmpresarial<br/>→ rpt_organizacao_chefes]
 ```
@@ -30,7 +30,7 @@ git, então fica hospedado numa pasta do Google Drive e é baixado em runtime.
 ## Arquitetura
 
 ```mermaid
-flowchart TD
+flowchart LR
     Setup[0_config<br/>4-SetupCatalog] --> Landing[1_landing<br/>00-LandingDownloadDrive]
     Landing --> Bronze[2_bronze<br/>01-BronzeIngestao]
     Bronze --> SilverDim[3_silver<br/>01-SilverDimensoes]

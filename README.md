@@ -15,9 +15,12 @@ dado de exemplo do próprio enunciado — ver [notebooks/parte1_sql/](notebooks/
 
 ```mermaid
 flowchart LR
-    S[00-Setup<br/>cria times, jogos,<br/>comissoes, colaboradores] --> C1[01-Campeonato<br/>→ rpt_campeonato]
-    S --> C2[02-Comissoes<br/>→ rpt_comissoes_vendedores]
-    S --> C3[03-OrganizacaoEmpresarial<br/>→ rpt_organizacao_chefes]
+    S[00-Setup<br/>cria times, jogos,<br/>comissoes, colaboradores] --> C1[01-Campeonato]
+    S --> C2[02-Comissoes]
+    S --> C3[03-OrganizacaoEmpresarial]
+    C1 --> R1[(rpt_campeonato)]
+    C2 --> R2[(rpt_comissoes_vendedores)]
+    C3 --> R3[(rpt_organizacao_chefes)]
 ```
 
 Job: `wf_pneustore_sql_parte1`.

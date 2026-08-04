@@ -25,6 +25,7 @@ rpt_mensal_produto = (
     )
     .orderBy("dt_mes", "id_produto")
 )
+display(rpt_mensal_produto.limit(20))
 process_data_load(rpt_mensal_produto, f"{GOLD}.rpt_mensal_produto")
 
 # COMMAND ----------
@@ -43,4 +44,5 @@ rpt_diario = (
     .select("dt_criacao", "qt_carrinhos_abandonados", "qt_itens_abandonados", "vl_nao_faturado")
     .orderBy("dt_criacao")
 )
+display(rpt_diario.limit(20))
 process_data_load(rpt_diario, f"{GOLD}.rpt_diario")

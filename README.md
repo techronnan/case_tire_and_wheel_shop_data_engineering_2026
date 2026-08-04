@@ -144,12 +144,17 @@ Log de cada etapa (código + contagem real de linhas gravadas):
 | `qualidade_dados` — 8 tabelas verificadas, todas OK | ![Qualidade de dados](img/parte2-qualidade-dados-log.png) |
 | `gold_export_top50` — 50 carrinhos, 217 linhas no `.txt` | ![Export top50](img/parte2-export-top50-log.png) |
 
-Resultado real de cada pergunta de negócio (Q1 a Q4 — Q5 documentada em detalhe
-mais acima, na seção de arquitetura, por causa da resolução via CEP):
+Resposta real de cada pergunta (o #1 do ranking — a tabela completa tem uma linha
+por produto/dupla/mês, o total de linhas só diz quantos produtos existem no
+ranking, não responde a pergunta sozinho). Q5 documentada em detalhe mais acima,
+na seção de arquitetura, por causa da resolução via CEP.
 
-| Pergunta | Evidência |
-|---|---|
-| Q1 — produtos com mais carrinhos abandonados (5.505 linhas) | ![Q1](img/parte2-q1-resultado.png) |
-| Q2 — duplas de produtos que mais aparecem juntas (137.357 linhas) | ![Q2](img/parte2-q2-resultado.png) |
-| Q3 — produtos com aumento de abandono (1.498 linhas) | ![Q3](img/parte2-q3-resultado.png) |
-| Q4 — produtos novos e volume no primeiro mês (108 linhas) | ![Q4](img/parte2-q4-resultado.png) |
+| Pergunta | Resposta (#1 do ranking) | Evidência |
+|---|---|---|
+| Q1 — produto com mais carrinhos abandonados | produto `8797277388801`: 33.617 carrinhos, 95.386 itens abandonados | ![Q1](img/parte2-q1-resultado.png) |
+| Q2 — dupla de produtos que mais aparece junta | `8797983080449` + `8800160120833`: 1.205 carrinhos com os dois juntos | ![Q2](img/parte2-q2-resultado.png) |
+| Q3 — produto com maior aumento de abandono no último mês | produto `8800160153601` em jul/2022: 960 → 2.803 carrinhos (+1.843) | ![Q3](img/parte2-q3-resultado.png) |
+| Q4 — produto novo com mais carrinhos no 1º mês | produto `8808152465409`, lançado jul/2022: 38 carrinhos no mês de estreia | ![Q4](img/parte2-q4-resultado.png) |
+
+(Ranking completo — todos os produtos/duplas/meses, não só o #1 — nas imagens e
+nas tabelas `gold.rpt_*` correspondentes.)

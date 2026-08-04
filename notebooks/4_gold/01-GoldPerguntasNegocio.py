@@ -23,6 +23,7 @@ rpt_produtos_mais_abandonados = (
     )
     .orderBy(col("qt_carrinhos_abandonados").desc())
 )
+display(rpt_produtos_mais_abandonados.limit(20))
 process_data_load(rpt_produtos_mais_abandonados, f"{GOLD}.rpt_produtos_mais_abandonados")
 
 # COMMAND ----------
@@ -38,6 +39,7 @@ rpt_duplas_produtos_abandonados = (
     .agg(countDistinct("id_carrinho").alias("qt_carrinhos_abandonados"))
     .orderBy(col("qt_carrinhos_abandonados").desc())
 )
+display(rpt_duplas_produtos_abandonados.limit(20))
 process_data_load(rpt_duplas_produtos_abandonados, f"{GOLD}.rpt_duplas_produtos_abandonados")
 
 # COMMAND ----------
@@ -59,6 +61,7 @@ rpt_produtos_aumento_abandono = (
     tendencia.filter((col("dt_mes") == lit(ultimo_mes)) & (col("var_qt_carrinhos") > 0))
     .orderBy(col("var_qt_carrinhos").desc())
 )
+display(rpt_produtos_aumento_abandono.limit(20))
 process_data_load(rpt_produtos_aumento_abandono, f"{GOLD}.rpt_produtos_aumento_abandono")
 
 # COMMAND ----------
@@ -75,6 +78,7 @@ rpt_produtos_novos_ultimo_mes = (
     .agg(countDistinct("id_carrinho").alias("qt_carrinhos_primeiro_mes"))
     .orderBy(col("qt_carrinhos_primeiro_mes").desc())
 )
+display(rpt_produtos_novos_ultimo_mes.limit(20))
 process_data_load(rpt_produtos_novos_ultimo_mes, f"{GOLD}.rpt_produtos_novos_ultimo_mes")
 
 # COMMAND ----------
@@ -117,4 +121,5 @@ rpt_estados_mais_abandonos = (
     .agg(countDistinct("id_carrinho").alias("qt_carrinhos_abandonados"))
     .orderBy(col("qt_carrinhos_abandonados").desc())
 )
+display(rpt_estados_mais_abandonos)  # poucas linhas (uma por UF), mostra tudo
 process_data_load(rpt_estados_mais_abandonos, f"{GOLD}.rpt_estados_mais_abandonos")

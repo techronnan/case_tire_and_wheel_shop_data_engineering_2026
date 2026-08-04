@@ -14,10 +14,13 @@ dado de exemplo do próprio enunciado — ver [notebooks/parte1_sql/](notebooks/
 - [`03-OrganizacaoEmpresarial.py`](notebooks/parte1_sql/03-OrganizacaoEmpresarial.py) — chefe indireto mais próximo que ganha o dobro → `rpt_organizacao_chefes`
 
 ```mermaid
-flowchart TD
-    S[00-Setup<br/>cria times, jogos, comissoes, colaboradores] --> C1[01-Campeonato<br/>→ rpt_campeonato]
-    S --> C2[02-Comissoes<br/>→ rpt_comissoes_vendedores]
-    S --> C3[03-OrganizacaoEmpresarial<br/>→ rpt_organizacao_chefes]
+flowchart LR
+    S[00-Setup<br/>cria times, jogos,<br/>comissoes, colaboradores] --> C1[01-Campeonato]
+    S --> C2[02-Comissoes]
+    S --> C3[03-OrganizacaoEmpresarial]
+    C1 --> R1[(rpt_campeonato)]
+    C2 --> R2[(rpt_comissoes_vendedores)]
+    C3 --> R3[(rpt_organizacao_chefes)]
 ```
 
 Job: `wf_pneustore_sql_parte1`.
@@ -30,7 +33,7 @@ git, então fica hospedado numa pasta do Google Drive e é baixado em runtime.
 ## Arquitetura
 
 ```mermaid
-flowchart TD
+flowchart LR
     Setup[0_config<br/>4-SetupCatalog] --> Landing[1_landing<br/>00-LandingDownloadDrive]
     Landing --> Bronze[2_bronze<br/>01-BronzeIngestao]
     Bronze --> SilverDim[3_silver<br/>01-SilverDimensoes]
@@ -54,8 +57,6 @@ falhar nos checks (linha zero, chave nula, chave duplicada).
   de UF do carrinho via faixa de CEP, já que o endereço de pagamento raramente é preenchido)
 - [`notebooks/4_gold/`](notebooks/4_gold/) — as 5 perguntas de negócio, os 2 relatórios de acompanhamento e o export top50
 
-<!-- imagem: DAG do Job rodando no Databricks -->
-
 ## Casos de uso (Parte 2)
 
 Cada pergunta da prova vira uma tabela Gold, gerada por
@@ -77,10 +78,6 @@ O export final — `.txt` com os 50 carrinhos de maior valor, no layout pipe-del
 pedido na prova — sai de
 [`notebooks/4_gold/03-GoldExportTop50.py`](notebooks/4_gold/03-GoldExportTop50.py).
 
-<!-- imagem: tabelas Gold no Unity Catalog -->
-
-<!-- imagem: conteúdo do export top50_carrinhos_abandonados.txt -->
-
 ## Conteúdo
 
 - `case/` — enunciado original (CASO.md) e descrição da vaga (VAGA.md)
@@ -91,3 +88,68 @@ pedido na prova — sai de
 - `notebooks/3_silver/` — tipagem e conformidade
 - `notebooks/4_gold/` — perguntas de negócio, relatórios e export
 - `databricks.yml` + `resources/jobs/` — Asset Bundle
+
+## Evidências de execução
+
+Prints reais das execuções no Databricks (workspace dev), pra mostrar não só que o
+código existe, mas que ele roda e devolve o resultado esperado.
+
+### Parte 1 (SQL)
+
+Job `wf_pneustore_sql_parte1`: setup cria as 4 tabelas de exemplo, depois as 3
+queries rodam em paralelo.
+
+| | |
+|---|---|
+| ![Job iniciando](img/parte1-sql-job-rodando.png) | Job disparado — `setup` rodando, as 3 queries aguardando |
+| ![Job concluído](img/parte1-sql-job-sucesso.png) | Job concluído — `campeonato`, `comissoes` e `organizacao_empresarial` com sucesso |
+| ![Setup](img/parte1-sql-setup-notebook.png) | `00-Setup`: criação das 4 tabelas de exemplo (aqui, `colaboradores`) |
+
+Resultado real de cada query (aberto interativo no notebook, não só o log de gravação):
+
+| Query | Resultado |
+|---|---|
+| 1.1 Campeonato | ![Resultado campeonato](img/parte1-sql-campeonato-resultado.png) |
+| 1.2 Comissões | ![Resultado comissões](img/parte1-sql-comissoes-resultado.png) |
+| 1.3 Organização Empresarial | ![Resultado organização empresarial](img/parte1-sql-organizacao-resultado.png) |
+
+Log de gravação de cada task do Job (código + confirmação de linhas gravadas):
+
+| | |
+|---|---|
+| ![Log campeonato](img/parte1-sql-campeonato-log.png) | `01-Campeonato` → `rpt_campeonato`, 5 linhas |
+| ![Log comissões](img/parte1-sql-comissoes-log.png) | `02-Comissoes` → `rpt_comissoes_vendedores`, 2 linhas |
+| ![Log organização](img/parte1-sql-organizacao-log.png) | `03-OrganizacaoEmpresarial` → `rpt_organizacao_chefes`, 7 linhas |
+
+### Parte 2 (Carrinho Abandonado)
+
+Job `wf_pneustore_carrinho_abandonado`: pipeline completo, Landing → Bronze →
+Silver → Qualidade → Gold.
+
+| | |
+|---|---|
+| ![Job iniciando](img/parte2-job-rodando.png) | Job disparado — `setup` rodando |
+| ![Job concluído](img/parte2-job-sucesso.png) | Job completo com sucesso — DAG inteiro, ~5min |
+| ![Catálogo](img/parte2-catalog-tabelas-gold.png) | Unity Catalog: as 7 tabelas Gold + o volume `exports` com o `.txt` do top50 |
+| ![E-mail de notificação](img/parte2-email-notificacao.png) | E-mail automático de sucesso do Job (`email_notifications.on_success`) |
+
+Log de cada etapa (código + contagem real de linhas gravadas):
+
+| Etapa | Evidência |
+|---|---|
+| `landing_download` — 8 arquivos baixados do Drive | ![Landing](img/parte2-landing-log.png) |
+| `bronze_ingestao` — 8 tabelas, ~16M linhas em `tb_carts` | ![Bronze](img/parte2-bronze-log.png) |
+| `silver_dimensoes` — `dim_usuarios`, `dim_enderecos` etc. | ![Silver dimensões](img/parte2-silver-dimensoes-log.png) |
+| `silver_fatos` — `fato_carrinhos`, `fato_carrinho_itens` | ![Silver fatos](img/parte2-silver-fatos-log.png) |
+| `qualidade_dados` — 8 tabelas verificadas, todas OK | ![Qualidade de dados](img/parte2-qualidade-dados-log.png) |
+| `gold_export_top50` — 50 carrinhos, 217 linhas no `.txt` | ![Export top50](img/parte2-export-top50-log.png) |
+
+Resultado real de cada pergunta de negócio (Q1 a Q4 — Q5 documentada em detalhe
+mais acima, na seção de arquitetura, por causa da resolução via CEP):
+
+| Pergunta | Evidência |
+|---|---|
+| Q1 — produtos com mais carrinhos abandonados (5.505 linhas) | ![Q1](img/parte2-q1-resultado.png) |
+| Q2 — duplas de produtos que mais aparecem juntas (137.357 linhas) | ![Q2](img/parte2-q2-resultado.png) |
+| Q3 — produtos com aumento de abandono (1.498 linhas) | ![Q3](img/parte2-q3-resultado.png) |
+| Q4 — produtos novos e volume no primeiro mês (108 linhas) | ![Q4](img/parte2-q4-resultado.png) |
